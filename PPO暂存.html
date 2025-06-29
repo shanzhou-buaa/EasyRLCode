@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x539f;&#x7406;&#x7b80;&#x4ecb;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h2 id="原理简介">原理简介</h2>
+<p>PPO是一种on-policy算法，具有较好的性能，其前身是TRPO算法，也是policy gradient算法的一种，它是现在 OpenAI 默认的强化学习算法，具体原理可参考<a href="https://datawhalechina.github.io/easy-rl/#/chapter5/chapter5">PPO算法讲解</a>。PPO算法主要有两个变种，一个是结合KL penalty的，一个是用了clip方法，本文实现的是后者即<code>PPO-clip</code>。</p>
+<h2 id="伪代码">伪代码</h2>
+<p>要实现必先了解伪代码，伪代码如下：
+<img src="file:///c:\Users\Administrator\Desktop\GitHubRLCode\easy-rl-master\notebooks\assets\watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0pvaG5KaW0w,size_16,color_FFFFFF,t_70.png" alt="在这里插入图片描述">
+这是谷歌找到的一张比较适合的图，本人比较懒就没有修改，上面的<code>k</code>就是第<code>k</code>个episode，第六步是用随机梯度下降的方法优化，这里的损失函数(即<code>argmax</code>后面的部分)可能有点难理解，可参考<a href="https://arxiv.org/abs/1707.06347">PPO paper</a>，如下：
+<img src="file:///c:\Users\Administrator\Desktop\GitHubRLCode\easy-rl-master\notebooks\assets\20210323154236878.png" alt="在这里插入图片描述">
+第七步就是一个平方损失函数，即实际回报与期望回报的差平方。</p>
+<h2 id="代码实战">代码实战</h2>
+<p><a href="https://github.com/JohnJim0816/rl-tutorials/tree/master/PPO">点击查看完整代码</a></p>
+<h3 id="ppomemory">PPOmemory</h3>
+<p>首先第三步需要搜集一条轨迹信息，我们可以定义一个<code>PPOmemory</code>来存储相关信息：</p>
+<pre><code class="language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">PPOMemory</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, batch_size</span>):
+        self.states = []
+        self.probs = []
+        self.vals = []
+        self.actions = []
+        self.rewards = []
+        self.dones = []
+        self.batch_size = batch_size
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">sample</span>(<span class="hljs-params">self</span>):
+        batch_step = np.arange(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(self.states), self.batch_size)
+        indices = np.arange(<span class="hljs-built_in">len</span>(self.states), dtype=np.int64)
+        np.random.shuffle(indices)
+        batches = [indices[i:i+self.batch_size] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> batch_step]
+        <span class="hljs-keyword">return</span> np.array(self.states),\
+                np.array(self.actions),\
+                np.array(self.probs),\
+                np.array(self.vals),\
+                np.array(self.rewards),\
+                np.array(self.dones),\
+                batches
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">push</span>(<span class="hljs-params">self, state, action, probs, vals, reward, done</span>):
+        self.states.append(state)
+        self.actions.append(action)
+        self.probs.append(probs)
+        self.vals.append(vals)
+        self.rewards.append(reward)
+        self.dones.append(done)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">clear</span>(<span class="hljs-params">self</span>):
+        self.states = []
+        self.probs = []
+        self.actions = []
+        self.rewards = []
+        self.dones = []
+        self.vals = []
+</code></pre>
+<p>这里的push函数就是将得到的相关量放入memory中，sample就是随机采样出来，方便第六步的随机梯度下降。</p>
+<h3 id="ppo-model">PPO model</h3>
+<p>model就是actor和critic两个网络了：</p>
+<pre><code class="language-python"><span class="hljs-keyword">import</span> torch.nn <span class="hljs-keyword">as</span> nn
+<span class="hljs-keyword">from</span> torch.distributions.categorical <span class="hljs-keyword">import</span> Categorical
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Actor</span>(nn.Module):
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self,n_states, n_actions,
+            hidden_dim=<span class="hljs-number">256</span></span>):
+        <span class="hljs-built_in">super</span>(Actor, self).__init__()
+
+        self.actor = nn.Sequential(
+                nn.Linear(n_states, hidden_dim),
+                nn.ReLU(),
+                nn.Linear(hidden_dim, hidden_dim),
+                nn.ReLU(),
+                nn.Linear(hidden_dim, n_actions),
+                nn.Softmax(dim=-<span class="hljs-number">1</span>)
+        )
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, state</span>):
+        dist = self.actor(state)
+        dist = Categorical(dist)
+        <span class="hljs-keyword">return</span> dist
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Critic</span>(nn.Module):
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, n_states,hidden_dim=<span class="hljs-number">256</span></span>):
+        <span class="hljs-built_in">super</span>(Critic, self).__init__()
+        self.critic = nn.Sequential(
+                nn.Linear(n_states, hidden_dim),
+                nn.ReLU(),
+                nn.Linear(hidden_dim, hidden_dim),
+                nn.ReLU(),
+                nn.Linear(hidden_dim, <span class="hljs-number">1</span>)
+        )
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, state</span>):
+        value = self.critic(state)
+        <span class="hljs-keyword">return</span> value
+</code></pre>
+<p>这里Actor就是得到一个概率分布(Categorica，也可以是别的分布，可以搜索torch distributionsl)，critc根据当前状态得到一个值，这里的输入维度可以是<code>n_states+n_actions</code>，即将action信息也纳入critic网络中，这样会更好一些，感兴趣的小伙伴可以试试。</p>
+<h3 id="ppo-update">PPO update</h3>
+<p>定义一个update函数主要实现伪代码中的第六步和第七步：</p>
+<pre><code class="language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">update</span>(<span class="hljs-params">self</span>):
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(self.n_epochs):
+        state_arr, action_arr, old_prob_arr, vals_arr,\
+        reward_arr, dones_arr, batches = \
+                self.memory.sample()
+        values = vals_arr
+        <span class="hljs-comment">### compute advantage ###</span>
+        advantage = np.zeros(<span class="hljs-built_in">len</span>(reward_arr), dtype=np.float32)
+        <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(reward_arr)-<span class="hljs-number">1</span>):
+            discount = <span class="hljs-number">1</span>
+            a_t = <span class="hljs-number">0</span>
+            <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(t, <span class="hljs-built_in">len</span>(reward_arr)-<span class="hljs-number">1</span>):
+                a_t += discount*(reward_arr[k] + self.gamma*values[k+<span class="hljs-number">1</span>]*\
+                        (<span class="hljs-number">1</span>-<span class="hljs-built_in">int</span>(dones_arr[k])) - values[k])
+                discount *= self.gamma*self.gae_lambda
+            advantage[t] = a_t
+        advantage = torch.tensor(advantage).to(self.device)
+        <span class="hljs-comment">### SGD ###</span>
+        values = torch.tensor(values).to(self.device)
+        <span class="hljs-keyword">for</span> batch <span class="hljs-keyword">in</span> batches:
+            states = torch.tensor(state_arr[batch], dtype=torch.<span class="hljs-built_in">float</span>).to(self.device)
+            old_probs = torch.tensor(old_prob_arr[batch]).to(self.device)
+            actions = torch.tensor(action_arr[batch]).to(self.device)
+            dist = self.actor(states)
+            critic_value = self.critic(states)
+            critic_value = torch.squeeze(critic_value)
+            new_probs = dist.log_prob(actions)
+            prob_ratio = new_probs.exp() / old_probs.exp()
+            weighted_probs = advantage[batch] * prob_ratio
+            weighted_clipped_probs = torch.clamp(prob_ratio, <span class="hljs-number">1</span>-self.policy_clip,
+                    <span class="hljs-number">1</span>+self.policy_clip)*advantage[batch]
+            actor_loss = -torch.<span class="hljs-built_in">min</span>(weighted_probs, weighted_clipped_probs).mean()
+            returns = advantage[batch] + values[batch]
+            critic_loss = (returns-critic_value)**<span class="hljs-number">2</span>
+            critic_loss = critic_loss.mean()
+            total_loss = actor_loss + <span class="hljs-number">0.5</span>*critic_loss
+            self.actor_optimizer.zero_grad()
+            self.critic_optimizer.zero_grad()
+            total_loss.backward()
+            self.actor_optimizer.step()
+            self.critic_optimizer.step()
+    self.memory.clear()
+</code></pre>
+<p>该部分首先从memory中提取搜集到的轨迹信息，然后计算gae，即advantage，接着使用随机梯度下降更新网络，最后清除memory以便搜集下一条轨迹信息。</p>
+<p>最后实现效果如下：
+<img src="file:///c:\Users\Administrator\Desktop\GitHubRLCode\easy-rl-master\notebooks\assets\watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0pvaG5KaW0w,size_16,color_FFFFFF,t_70-20210405110725113.png" alt="在这里插入图片描述"></p>
+
+            
+            
+        </body>
+        </html>
