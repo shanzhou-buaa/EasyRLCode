@@ -195,7 +195,7 @@ class DrunkenWalkEnv(DiscreteEnv):
 
         S...
         .H.H
-        ...
+        ...H
         H..G
 
     S : starting point
